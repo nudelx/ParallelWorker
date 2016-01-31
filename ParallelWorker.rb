@@ -53,7 +53,7 @@ class ParallelWorker
     end
 
     def isProcessAlive?
-        puts @proc_queue.inspect
+        puts "The que : #{@proc_queue.inspect}"
         @proc_queue.each do |pid, state|
             is_running = false
             debugPrint("Looking for #{pid}")
@@ -105,8 +105,13 @@ class ParallelWorker
 
         while(true) do
 
-            allprocs = Process.waitall
-            pp allprocs.inspect
+            begin
+                allprocs = Process.waitall
+                pp allprocs.inspect
+            rescue
+
+            end
+
             sleep 1
 
         end
@@ -116,8 +121,8 @@ class ParallelWorker
     def waitForLast
         puts "length:  #{Process.waitall().length}"
         begin
-            while(Process.waitall().length) do
-                debugPrint("waiting for last")
+            while(Process.waitall().length > 0) do
+                debugPrint("waiting for last #{Process.waitall().length}")
                 sleep 1
                 isProcessAlive?()
 
@@ -133,19 +138,23 @@ class ParallelWorker
     end
 
     def run
-        debugPrint("main online #{Process.pid}")
         unless @data.length
             raise " No data found  "
             exit()
         end
+
+
+        debugPrint("main online #{Process.pid}")
+        debugPrint("Data set:  #{@data.inspect}")
         wakeUpWatchDog()
+
         @data.each do |item|
             while @proc_queue.length >= @max_proc do
-
                 debugPrint("Queue is full please wait ... #{@proc_queue.length}")
                 isProcessAlive?()
                 break if @proc_queue.length < @max_proc
             end
+
             debugPrint("running on data item #{item}")
             createProcess(item:item)
             @counter+=1
