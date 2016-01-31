@@ -102,6 +102,7 @@ class ParallelWorker
       end
 
       @data.each do |item|
+        puts "running on data item #{item}"
         sleep 1   
         createProcess(item:item)    
       end
@@ -113,7 +114,12 @@ end
 
 
 PW = ParallelWorker.new()
-PW.setData(data:(0..10).to_a)
-PW.setCallback(callback: lambda {|p|  sleep 1*p; puts "hello I'am callback -> #{p}"})
-PW.callback.call(2)
+
+PW.callback(lambda {|item| sleep 2*item ; puts "Done ,,, I am dead"})
+PW.setData(data: (0..10).to_a)
+PW.run()
+
+
+
+
 
