@@ -25,6 +25,7 @@ class ParallelWorker
  
   def debugPrint(str)
     if @debug_mode
+      sleep 1  
       puts "#{Time.new.inspect}: #{str}"
     end
   end
@@ -70,29 +71,38 @@ class ParallelWorker
   
   def createProcess(item: 0)
 
-    debugPrint("starting new process")
-    pid = fork
+    debugPrint("starting new process with Item : #{item}" )
+    pid = fork do
 
-    if pid # Darth Vader 
-        debugPrint("Hi I am your father ")
-        @counter+=1
-        @proc_queue[pid] = 1
-        
-
-    elsif pid == 0 # Luke
-        debugPrint("Hi I am child ")
+        debugPrint("Hi I am child")
         if @callback.class == Proc
             @callback.call(item, @ex_obj)  
+            exit()
         else
             puts " no callback found  "
         end
-        
-    else
-        raise "Can't create new process "
-    end
 
+
+    end
+   debugPrint("Hi I am your father => listening to #{pid}")
+   @counter+=1
+   @proc_queue[pid] = 1
   end
 
+  def waitJob
+
+
+      debugPrint("waiting")
+      Process.wait
+
+  end
+  
+  def wakeUpWatchDog
+
+      debugPrint("Waking up the watchdog ")
+      @watch_dog = Thread.new{waitJob()}
+      
+  end
 
   def run
       
@@ -101,12 +111,17 @@ class ParallelWorker
           exit()
       end
 
+      wakeUpWatchDog()
+      
       @data.each do |item|
-        puts "running on data item #{item}"
-        sleep 1   
+
+        debugPrint("running on data item #{item}")
         createProcess(item:item)    
       end
-  
+
+
+      @watch_dog.join
+      puts "Father is Done "
   end
 
 end
@@ -114,9 +129,8 @@ end
 
 
 PW = ParallelWorker.new()
-
-PW.callback(lambda {|item| sleep 2*item ; puts "Done ,,, I am dead"})
-PW.setData(data: (0..10).to_a)
+PW.setCallback(callback:lambda {|item,ext_obj| sleep 2*item ; puts "Done ,,, I am dead"})
+PW.setData(data: (0..3).to_a)
 PW.run()
 
 
