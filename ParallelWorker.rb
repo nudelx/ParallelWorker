@@ -1,14 +1,74 @@
 class ParallelWorker
 
     require 'pp'
-    attr_accessor :data
-    attr_accessor :callback
+    # attributes available only from functions
+    # attr_accessor :data
+    # attr_accessor :callback
+      attr_accessor :debug_mode
 
+    public
+
+    def initialize(data:nil, callback: nil)
+
+        @counter = 0
+        @debug_mode = false
+        @max_proc = 3
+        @watch_dog = nil
+        @proc_queue = {}
+
+        @use_log  = false
+        @log_path = '/tmp/'
+        @log_name = 'ParallelWorker.log'
+
+        @callback = callback
+        @data     = data
+        @ex_obj   = nil
+        @proc_out = 'pid.out'
+        @keep_proc_out = false
+    end
+
+    def setData(data: [])
+        if data.class == Array
+            @data = data
+        else
+            raise "data is not array"
+        end
+    end
+
+    def setCallback(callback: lambda{})
+        if callback.class == Proc
+            @callback = callback
+        else
+            raise "callback is not a function"
+        end
+    end
+
+    def run
+
+        validate()
+        debugPrint("main process online #{Process.pid}")
+        debugPrint("Data set:  #{@data.inspect}")
+        wakeUpWatchDog()
+
+        @data.each do |item|
+            while @proc_queue.length >= @max_proc do
+                debugPrint(" ### Queue is full (limit is: #{@max_proc}) please wait ... #{@proc_queue.length} ### ")
+                isProcessAlive?()
+                break if @proc_queue.length < @max_proc
+            end
+
+            debugPrint("running on data item #{item}")
+            createProcess(item:item)
+            @counter+=1
+        end
+        waitForLast()
+        puts "Father is Done "
+    end
 
     private
 
     def isProcessAlive?
-        puts "The que : #{@proc_queue.inspect}"
+        debugPrint "The que : #{@proc_queue.inspect}"
 
         @proc_queue.each do |pid, state|
 
@@ -57,7 +117,7 @@ class ParallelWorker
             debugPrint("Hi I am child")
             if @callback.class == Proc
                 @callback.call(item, @ex_obj)
-                puts "Child: Time to die !!!"
+                debugPrint "Child: Time to die !!!"
                 exit(55)
             else
                 puts " no callback found #{$$} "
@@ -75,14 +135,14 @@ class ParallelWorker
         debugPrint(" The dog is on shift ")
         while(true) do
             allprocs = Process.waitall
-            pp allprocs.inspect
+             debugPrint(allprocs.inspect)
             sleep 1
         end
     end
 
     def waitForLast
         debugPrint("For loop is done , waiting for last to finish ")
-        puts "length:  #{Process.waitall().length}"
+        debugPrint("length:  #{Process.waitall().length}")
 
         while(@proc_queue.length> 0) do
             debugPrint("waiting for last #{@proc_queue.length}")
@@ -117,72 +177,12 @@ class ParallelWorker
         is_callback_exist()
     end
 
-    public
-
-    def initialize(data:nil, callback: nil)
-
-        @counter = 0
-        @debug_mode = true
-        @max_proc = 3
-        @watch_dog = nil
-        @proc_queue = {}
-
-        @use_log  = false
-        @log_path = '/tmp/'
-        @log_name = 'ParallelWorker.log'
-
-        @callback = callback
-        @data     = data
-        @ex_obj   = nil
-        @proc_out = 'pid.out'
-        @keep_proc_out = false
-    end
-
-
-
-    def setData(data: [])
-        if data.class == Array
-            @data = data
-        else
-            raise "data is not array"
-        end
-    end
-
-    def setCallback(callback: lambda{})
-        if callback.class == Proc
-            @callback = callback
-        else
-            raise "callback is not a function"
-        end
-    end
-
-    def run
-
-        validate()
-        debugPrint("main process online #{Process.pid}")
-        debugPrint("Data set:  #{@data.inspect}")
-        wakeUpWatchDog()
-
-        @data.each do |item|
-            while @proc_queue.length >= @max_proc do
-                debugPrint(" ### Queue is full (limit is: #{@max_proc}) please wait ... #{@proc_queue.length} ### ")
-                isProcessAlive?()
-                break if @proc_queue.length < @max_proc
-            end
-
-            debugPrint("running on data item #{item}")
-            createProcess(item:item)
-            @counter+=1
-        end
-        waitForLast()
-        puts "Father is Done "
-    end
-
 end
 
 
+# PW = ParallelWorker.new()
+# PW.setCallback(callback:lambda {|item,ext_obj| sleep 5*item ; puts "Done ,,, I am dead my Pid is #{Process.pid}"})
+# PW.setData(data: (1..10).to_a)
+# PW.run()
 
-PW = ParallelWorker.new()
-PW.setCallback(callback:lambda {|item,ext_obj| sleep 5*item ; puts "Done ,,, I am dead my Pid is #{Process.pid}"})
-PW.setData(data: (1..10).to_a)
-PW.run()
+

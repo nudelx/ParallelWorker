@@ -1,16 +1,10 @@
 #!/usr/bin/env ruby
 
-pid = fork do 
-  puts "I am child"
-  sleep 3 
-  puts "child done"
-  exit
+require './ParallelWorker'
 
-end
- 
-puts "I am  father  and I am waiting for the child "
-Process.wait(pid)
-puts "Father done " 
-
-
+ PW = ParallelWorker.new()
+ PW.debug_mode = true
+ PW.setCallback(callback:lambda {|item,ext_obj| sleep 5*item ; puts "Done ,,, I am dead my Pid is #{Process.pid}"})
+ PW.setData(data: (1..10).to_a)
+ PW.run()
 
