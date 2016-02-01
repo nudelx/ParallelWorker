@@ -43,6 +43,14 @@ class ParallelWorker
         end
     end
 
+    def set_ext_obj(ext_obj:{})
+        if callback.class == Hash
+            @ex_obj = ext_obj
+        else
+            raise "external object is not a hash"
+        end
+    end
+
     def run
 
         validate()
