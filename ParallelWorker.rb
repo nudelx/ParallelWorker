@@ -11,7 +11,6 @@ class ParallelWorker
     # attr_accessor :data
     # attr_accessor :callback
       attr_accessor :debug_mode
-      attr_accessor :debug_mode
       attr_accessor :max_proc
 
     public
