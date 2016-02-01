@@ -3,6 +3,7 @@ require './ParallelWorker'
 
 PW = ParallelWorker.new()
 PW.max_proc = 10
+PW.debug_mode = true
 PW.set_callback(callback: lambda { |ip_address , ext_obj|
   puts "ssh command to  root@#{ip_address}"
   out  = ` ssh root@#{ip_address} netstat -an | grep -i listen`
