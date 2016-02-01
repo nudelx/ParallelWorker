@@ -5,10 +5,9 @@ PW = ParallelWorker.new()
 PW.max_proc = 10
 
 PW.set_callback(callback: lambda { |ip_address , ext_obj|
-  # puts "ping command to  #{ip_address}"
-  out  = system("ping -c 1 -o -t 1 #{ip_address} | 2>&1 >> /dev/null")
-  if out
-    puts "Host #{ip_address} is alave\n"
+
+  out = system("ping -c 1 -o -t 1 #{ip_address} | 2>&1 >> /dev/null")
+  if out  puts "Host #{ip_address} is alave\n"
   else
     puts "Host #{ip_address} is dead\n"
   end
