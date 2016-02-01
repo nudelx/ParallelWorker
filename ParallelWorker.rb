@@ -27,7 +27,7 @@ class ParallelWorker
         @keep_proc_out = false
     end
 
-    def setData(data: [])
+    def set_data(data: [])
         if data.class == Array
             @data = data
         else
@@ -35,7 +35,7 @@ class ParallelWorker
         end
     end
 
-    def setCallback(callback: lambda{})
+    def set_callback(callback: lambda{})
         if callback.class == Proc
             @callback = callback
         else
@@ -46,78 +46,78 @@ class ParallelWorker
     def run
 
         validate()
-        debugPrint("main process online #{Process.pid}")
-        debugPrint("Data set:  #{@data.inspect}")
-        wakeUpWatchDog()
+        debug_print("main process online #{Process.pid}")
+        debug_print("Data set:  #{@data.inspect}")
+        wake_up_watch_dog()
 
         @data.each do |item|
             while @proc_queue.length >= @max_proc do
-                debugPrint(" ### Queue is full (limit is: #{@max_proc}) please wait ... #{@proc_queue.length} ### ")
-                isProcessAlive?()
+                debug_print(" ### Queue is full (limit is: #{@max_proc}) please wait ... #{@proc_queue.length} ### ")
+                is_process_alive?()
                 break if @proc_queue.length < @max_proc
             end
 
-            debugPrint("running on data item #{item}")
-            createProcess(item:item)
+            debug_print("running on data item #{item}")
+            create_process(item:item)
             @counter+=1
         end
-        waitForLast()
+        wait_for_last()
         puts "Father is Done "
     end
 
     private
 
-    def isProcessAlive?
-        debugPrint "The que : #{@proc_queue.inspect}"
+    def is_process_alive?
+        debug_print "The que : #{@proc_queue.inspect}"
 
         @proc_queue.each do |pid, state|
 
-            debugPrint("Looking for #{pid}")
+            debug_print("Looking for #{pid}")
             begin
                 is_running = Process::kill 0, pid
             rescue
                 is_running = false
             end
 
-            debugPrint("The result is #{is_running} for #{pid}")
+            debug_print("The result is #{is_running} for #{pid}")
 
             unless is_running
-                debugPrint "Process => #{pid} is not running"
-                deleteProcess(pid:pid)
+                debug_print "Process => #{pid} is not running"
+                delete_process(pid:pid)
             end
         end
     end
 
-    def debugPrint(str)
+    def debug_print(str)
         if @debug_mode
             sleep 1
             puts "#{Time.new.inspect}: #{str}"
         end
     end
 
-    def dumpData(data: [])
+    def dump_data(data: [])
         puts "========"
         pp data
         puts "========"
     end
 
-    def deleteProcess(pid: 0)
+    def delete_process(pid: 0)
         if pid
-            debugPrint("Trying to delete process pid[#{pid}]")
+            debug_print("Trying to delete process pid[#{pid}]")
             @proc_queue.delete(pid)
-            debugPrint("pid[#{pid}] was deleted")
+            debug_print("pid[#{pid}] was deleted")
         end
     end
 
-    def createProcess(item: 0)
+    def create_process(item: 0)
 
-        debugPrint("starting new process with Item : #{item}" )
+        debug_print("starting new process with Item : #{item}" )
         pid = fork do
 
-            debugPrint("Hi I am child")
+            debug_print("Hi I am child")
             if @callback.class == Proc
                 @callback.call(item, @ex_obj)
-                debugPrint "Child: Time to die !!!"
+                debug_print "Child: Time to die !!!"
                 exit(55)
             else
                 puts " no callback found #{$$} "
@@ -125,37 +125,37 @@ class ParallelWorker
 
 
         end
-        debugPrint("Hi I am your father => listening to #{pid}")
+        debug_print("Hi I am your father => listening to #{pid}")
 
         @counter+=1
         @proc_queue[pid] = 1
     end
 
-    def waitJob
-        debugPrint(" The dog is on shift ")
+    def wait_job
+        debug_print(" The dog is on shift ")
         while(true) do
             allprocs = Process.waitall
-             debugPrint(allprocs.inspect)
+             debug_print(allprocs.inspect)
             sleep 1
         end
     end
 
-    def waitForLast
-        debugPrint("For loop is done , waiting for last to finish ")
-        debugPrint("length:  #{Process.waitall().length}")
+    def wait_for_last
+        debug_print("For loop is done , waiting for last to finish ")
+        debug_print("length:  #{Process.waitall().length}")
 
         while(@proc_queue.length> 0) do
-            debugPrint("waiting for last #{@proc_queue.length}")
-            isProcessAlive?()
+            debug_print("waiting for last #{@proc_queue.length}")
+            is_process_alive?()
             sleep 1
         end
 
         @watch_dog.terminate
     end
 
-    def wakeUpWatchDog
-        debugPrint("Waking up the watchdog ")
-        @watch_dog = Thread.new{waitJob()}
+    def wake_up_watch_dog
+        debug_print("Waking up the watchdog ")
+        @watch_dog = Thread.new{wait_job()}
     end
 
     def is_data_exist
