@@ -4,7 +4,7 @@ class ParallelWorker
     attr_accessor :data
     attr_accessor :callback
 
-    def initialize
+    def initialize(data:nil, callback: nil)
 
         @counter = 0
         @debug_mode = true
@@ -16,8 +16,8 @@ class ParallelWorker
         @log_path = '/tmp/'
         @log_name = 'ParallelWorker.log'
 
-        @callback = nil
-        @data     = nil
+        @callback = callback
+        @data     = data
         @ex_obj   = nil
         @proc_out = 'pid.out'
         @keep_proc_out = false
@@ -54,13 +54,14 @@ class ParallelWorker
 
     def isProcessAlive?
         puts "The que : #{@proc_queue.inspect}"
+
         @proc_queue.each do |pid, state|
-            is_running = false
+
             debugPrint("Looking for #{pid}")
             begin
                 is_running = Process::kill 0, pid
             rescue
-                deleteProcess(pid:pid)
+                is_running = false
             end
 
             debugPrint("The result is #{is_running} for #{pid}")
@@ -88,7 +89,8 @@ class ParallelWorker
             debugPrint("Hi I am child")
             if @callback.class == Proc
                 @callback.call(item, @ex_obj)
-                exit()
+                puts "Child: Time to die !!!"
+                exit(55)
             else
                 puts " no callback found #{$$} "
             end
@@ -96,40 +98,32 @@ class ParallelWorker
 
         end
         debugPrint("Hi I am your father => listening to #{pid}")
+
         @counter+=1
         @proc_queue[pid] = 1
     end
 
     def waitJob
-        debugPrint("waiting dog is online #{Process.pid}")
-
         while(true) do
-
-            begin
-                allprocs = Process.waitall
-                pp allprocs.inspect
-            rescue
-
-            end
-
+            puts "thread on wait "
+            allprocs = Process.waitall
+            pp allprocs.inspect
             sleep 1
-
+            puts "thread on wait out "
         end
-
     end
 
     def waitForLast
+        debugPrint("For loop is done , waiting for last to finish ")
         puts "length:  #{Process.waitall().length}"
-        begin
-            while(Process.waitall().length > 0) do
-                debugPrint("waiting for last #{Process.waitall().length}")
-                sleep 1
-                isProcessAlive?()
 
-            end
-        rescue
+        while(@proc_queue.length> 0) do
+            debugPrint("waiting for last #{@proc_queue.length}")
+            isProcessAlive?()
+            sleep 1
         end
-        @watch_dog.join
+
+        @watch_dog.terminate
     end
 
     def wakeUpWatchDog
@@ -137,13 +131,28 @@ class ParallelWorker
         @watch_dog = Thread.new{waitJob()}
     end
 
-    def run
+    def is_data_exist
         unless @data.length
             raise " No data found  "
             exit()
         end
+    end
 
+    def is_callback_exist
+        unless @callback.class == Proc
+            raise " callback is not valid  "
+            exit()
+        end
+    end
 
+    def validate
+        is_data_exist()
+        is_callback_exist()
+    end
+
+    def run
+
+        validate()
         debugPrint("main online #{Process.pid}")
         debugPrint("Data set:  #{@data.inspect}")
         wakeUpWatchDog()
@@ -162,12 +171,11 @@ class ParallelWorker
         waitForLast()
         puts "Father is Done "
     end
-
 end
 
 
 
 PW = ParallelWorker.new()
 PW.setCallback(callback:lambda {|item,ext_obj| sleep 5*item ; puts "Done ,,, I am dead my Pid is #{item}"})
-PW.setData(data: (0..3).to_a)
+PW.setData(data: (0..6).to_a)
 PW.run()
