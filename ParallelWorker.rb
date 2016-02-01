@@ -1,10 +1,18 @@
 class ParallelWorker
 
+    #######
+    #  Author:  Alex Nudelman
+    #  Project: Parallel Worker Engine
+    #  Samanage 2016
+    #####
+
     require 'pp'
     # attributes available only from functions
     # attr_accessor :data
     # attr_accessor :callback
       attr_accessor :debug_mode
+      attr_accessor :debug_mode
+      attr_accessor :max_proc
 
     public
 
