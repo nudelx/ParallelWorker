@@ -68,7 +68,7 @@ class ParallelWorker
     private
 
     def is_process_alive?
-        debug_print "The que : #{@proc_queue.inspect}"
+        debug_print "The queue : #{@proc_queue.inspect}"
 
         @proc_queue.each do |pid, state|
 
