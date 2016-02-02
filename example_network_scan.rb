@@ -6,12 +6,8 @@ PW.max_proc = 10
 
 PW.set_callback(callback: lambda { |ip_address , ext_obj|
 
-  out  = system("ping -c 1 -o -t 1 #{ip_address} | 2>&1 >> /dev/null")
-  if out
-    puts "Host #{ip_address} is alave\n"
-  else
-    puts "Host #{ip_address} is dead\n"
-  end
+  out  = `sudo nmap -O -A --script snmp-interfaces #{ip_address} -oN ./data-files/#{ip_address}.txt`
+
 })
 PW.set_data(data: 255.times.map{|i| "192.168.1.#{i}"})
 PW.run()
