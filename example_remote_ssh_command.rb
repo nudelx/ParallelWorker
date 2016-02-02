@@ -9,5 +9,5 @@ PW.set_callback(callback: lambda { |ip_address , ext_obj|
   out  = ` ssh root@#{ip_address} netstat -an | grep -i listen`
   puts out
 })
-PW.set_data(data: 255.times.map{|i| "192.168.0.#{i}"})
+PW.set_data(data: 255.times.map{|i| "192.168.1.#{i}"})
 PW.run()
