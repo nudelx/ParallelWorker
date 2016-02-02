@@ -3,7 +3,7 @@ class ParallelWorker
     #######
     #  Author:  Alex Nudelman
     #  Project: Parallel Worker Engine
-    #  Samanage 2016
+    #  V.1.0 ©  2016
     #####
 
     require 'pp'
