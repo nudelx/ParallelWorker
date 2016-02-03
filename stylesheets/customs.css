@@ -1,0 +1,38 @@
+
+
+header{
+
+  background-color: rgba(182,152,124,1);
+  margin-bottom: 40px;
+}
+
+header h1 ,header h2{
+  text-align: center;
+}
+
+header h2 {
+  margin-top: 20px;
+  color: #4a4a4a;
+}
+
+header > .inner-image{
+  background-image: url('../images/mt.jpg');
+  height: 250px;
+  width: 500px;
+  background-size: 100% 100%;
+  margin-bottom: 30px;
+  margin-right: auto;
+  margin-left:auto;
+}
+
+
+span.ruby-icon{
+
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background-image: url('../images/ruby.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    vertical-align: bottom;
+}
