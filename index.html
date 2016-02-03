@@ -44,7 +44,7 @@ Under Linux, fork() is implemented using copy-on-write pages, so the only penalt
 ParallelWorker gives you ability to setup bunch of tasks and provide callback function to each of them. In addition to the callback function you can provide external object hash like,
 where the attributes can a data structure or individual functionality for each task. ParallelWorker will distribute the tasks during managing the process queue.
 In current version you can control the number of on line processes by setting the max process limit. Once max process limit will be exceeded the the engine will activate wait mode.
-In wait mode engine will listen for task that done with the task and then will put the next one from the queue and so on. So every single tick you will see x numbers of task on line and
+In wait mode engine will listen for task that done with the task and then will put the next one from the queue and so on. So every single tick you will see x numbers of task on-line and
 (n-x) task in queue waiting to run.</p>
 
 <h3>
