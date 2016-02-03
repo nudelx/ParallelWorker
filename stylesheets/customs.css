@@ -36,3 +36,11 @@ span.ruby-icon{
     background-position: center center;
     vertical-align: bottom;
 }
+#downloads{
+  text-align: center;
+}
+
+#downloads a {
+  float: none;
+  display: inline-block;
+}
