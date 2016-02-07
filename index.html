@@ -44,18 +44,18 @@ fork is an operation whereby a process creates a copy of itself. It is usually a
 <a href="https://guides.github.com/features/mastering-markdown/"></a>
 <strong>fork()</strong> creates a child process that differs from the parent process only in its PID and PPID.
 Under Linux, fork() is implemented using copy-on-write pages, so the only penalty that it incurs is the time and memory required to duplicate the parent’s page tables, and to create a unique task structure for the child.
-ParallelWorker gives you ability to setup bunch of tasks and provide callback function to each of them. In addition to the callback function you can provide external object hash like,
-where the attributes can a data structure or individual functionality for each task. ParallelWorker will distribute the tasks during managing the process queue.
-In current version you can control the number of on-line processes by setting the max process limit. Once max process limit will be exceeded the the engine will activate wait mode.
-In wait mode engine will listen for task are done with the job and then will put the next one from the queue and so on. So every single tick you will see x numbers of task on-line,
-according to the limit you can set, and the (n-x) task in queue waiting to run.</p>
+ParallelWorker gives you ability to setup bunch of tasks and provide a callback function to each of them. In addition to the callback function you can provide external hash like object,
+where the attributes can be a data structure or individual functionality for each task. ParallelWorker will distribute the tasks during managing the process queue.
+In current version you can control the number of on-line processes by setting the max process limit. Once max process limit will be exceeded the engine will activate wait mode.
+In wait mode engine will listen for tasks that are done and start new ones when possible. So every single tick you will see x numbers of task on-line,
+according to the limit.</p>
 
 <h3>
 <a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Class Description - Public Methods</h3>
 
 <p>
  <strong>set_data </strong>
-   - The method provides access to the data value, where you can store the bunch of tasks in array.
+   - The method provides access to the data value, where you can store the bunch of tasks in an array.
   <br><br>Example:
   <pre>set_data(data: 255.times.map{|i| "192.168.1.#{i}"})</pre>
   Will set data array with class <C> of IP addresses
@@ -76,9 +76,9 @@ according to the limit you can set, and the (n-x) task in queue waiting to run.<
   <pre>
     set_callback( callback: lambda { |ip_address , ext_obj|
 
-        out  = system("ping -c 1 -o -t 1 #{ip_address} | 2>&1 >> /dev/null")
+        out  = system("ping -c 1 -o -t 1 #{ip_address} > /dev/null")
         if out
-          puts "Host #{ip_address} is alave\n"
+          puts "Host #{ip_address} is alive\n"
         else
           puts "Host #{ip_address} is dead\n"
     end
