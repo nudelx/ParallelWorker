@@ -93,7 +93,7 @@ according to the limit you can set, and the (n-x) task in queue waiting to run.<
  <strong>set_ext_obj</strong>
    - Method provides access special extra hash object. Where you can set all kind of
    business logics or special unique/diffident functionality for each processes.
-   As a callback, extra object can be accessible inside the fork process, where you can execute
+   Extra object can be accessible inside the lamda call inside the fork process, here you can execute
    it by a key or any other parameter of or choice.
   <br><br>Example:
   <pre>
@@ -114,6 +114,7 @@ according to the limit you can set, and the (n-x) task in queue waiting to run.<
 
           file.write("Hello from child process #{Process.pid}
                       wait time: #{sleep 5*item}(s)
+                      #{ext_obj.function_a.call()}
                       #{pp ext_obj}
                       bye bye ..."
                     )
