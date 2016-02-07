@@ -22,7 +22,7 @@
         <header>
           <div class="inner-image"></div>
           <h1> Multi Processing Background Worker Engine </h1>
-          <h2> <span class="ruby-icon"></span> Ruby multi process module by Alex Nudelman</h2>
+          <h2> <span class="ruby-icon"></span> Ruby multi process module by Alex Nudelman (<a href="https://github.com/nudelx" class="user-mention" >@nudelx</a>)</h2>
         </header>
 
         <section id="downloads" class="clearfix">
@@ -55,18 +55,10 @@ according to the limit you can set, and the (n-x) task in queue waiting to run.<
 
 <p>
  <strong>set_data </strong>
-   - The method provides access to the data value, where you can store the bunch of tasks in array. Example:
-  <code>
-    set_data(data: 255.times.map{|i| "192.168.1.#{i}"})
-  </code> Will set data array with class C IP addresses
-</p>
-
-<p>
- <strong>max_proc </strong>
-   - Assessor to set the on-line process limit
-  <code>
-    max_proc = 10
-  </code> Will set the limit up to 10 live processes on-line
+   - The method provides access to the data value, where you can store the bunch of tasks in array.
+  <br><br>Example:
+  <pre>set_data(data: 255.times.map{|i| "192.168.1.#{i}"})</pre>
+  Will set data array with class <C> of IP addresses
 </p>
 
 <p>
@@ -92,25 +84,28 @@ according to the limit you can set, and the (n-x) task in queue waiting to run.<
     end
     })
   </pre>
-  Lambda function will be called by the fork process with arguments "ip_address" in our case according to the data set above.
+  Lambda function will be called by the fork process with arguments "ip_address" in our case, according to the data set above.
   The process will run system command and do the logics.
 
 </p>
 
 <h3>
-<a id="creating-pages-manually" class="anchor" href="#creating-pages-manually" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating pages manually</h3>
+<a id="creating-pages-manually" class="anchor" href="#creating-pages-manually" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>
+Creating pages manually</h3>
 
 <p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
 
 <h3>
-<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>
+Authors and Contributors</h3>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor’s GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>A first version of the ParallelWorker was created and designed by Alex Nudelman <a href="https://github.com/nudelx" class="user-mention">(@nudelx)</a>.
+In order to make it more powerful and useful, you are welcome to visit the github page and comment/fork the project or become a contributer.</p>
 
 <h3>
 <a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact</h3>
 
-<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
+<p>Having trouble with the Module? you know the address :)</p>
         </section>
 
         <footer>
