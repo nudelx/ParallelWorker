@@ -8,7 +8,7 @@ PW.set_callback(callback: lambda { |ip_address , ext_obj|
 
   out  = system("ping -c 1 -o -t 1 #{ip_address} > /dev/null ")
   if out
-    puts "Host #{ip_address} is alave\n"
+    puts "Host #{ip_address} is alive\n"
   else
     puts "Host #{ip_address} is dead\n"
   end
