@@ -89,11 +89,220 @@ according to the limit you can set, and the (n-x) task in queue waiting to run.<
 
 </p>
 
+<p>
+ <strong>set_ext_obj</strong>
+   - Method provides access special extra hash object. Where you can set all kind of
+   business logics or special unique/diffident functionality for each processes.
+   As a callback, extra object can be accessible inside the fork process, where you can execute
+   it by a key or any other parameter of or choice.
+  <br><br>Example:
+  <pre>
+    PW.set_ext_obj(ext_obj: {
+      'function_a' =>  lambda{ puts "hello I am extra function"},
+      'array' => [0,1,2,3,4,5,6,7],
+      'hash' => {  'A' => 1, 'B' => 1, 'C' => 1,  },
+      'value' => 'some value'
+    })
+  </pre>
+
+  The extra object can be executed from callback function, where it will be passed as a second argument.
+  <br><br>Example:
+  <pre>
+    PW.set_callback(callback: lambda { |item , ext_obj|
+
+      File.open("#{Process.pid}.txt", "w") { |file|
+
+          file.write("Hello from child process #{Process.pid}
+                      wait time: #{sleep 5*item}(s)
+                      #{pp ext_obj}
+                      bye bye ..."
+                    )
+      }
+})
+
+
+  ### And this is a content of a process.pid.txt for example:
+
+  Hello from child process 83510
+  wait time: 10(s)
+  {
+    "function_a" => (lambda),
+    "array"     => [0, 1, 2, 3, 4, 5, 6, 7],
+    "hash"      => {"A"=>1, "B"=>1, "C"=>1},
+    "value"     => "some value"
+  }
+
+  bye bye ...
+
+  </pre>
+
+</p>
+
 <h3>
 <a id="creating-pages-manually" class="anchor" href="#creating-pages-manually" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>
-Creating pages manually</h3>
+Use Cases and Examples:</h3>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>In order to make it more clearly, you can review couple of examples: </p>
+
+<dl>
+  <dt><strong>1 - File: [example.rb] </strong></dt>
+  <dd>
+    This example file will run 1..10 processes, where each process will run callback function.
+    Callback will wait (sleep 5*item ) where item is array index , and print some text on the screen
+    all this will run in debug mode.
+    ** note: debug mode is a kind of slow motion each one iteration in one second
+    see sleep 1 in debug function.
+    <br><br>Example:
+    <pre>
+    #!/usr/bin/env ruby
+
+    require './ParallelWorker'
+
+    PW = ParallelWorker.new()
+    PW.debug_mode = true
+    PW.set_callback(callback: lambda {|item,ext_obj| sleep 5*item ;
+                                      puts "Done ,,,
+                                      I am dead my Pid is #{Process.pid}"})
+    PW.set_data(data: (1..10).to_a)
+    PW.run()
+    </pre>
+   </dd>
+   <dt><strong>2 - File: [example_network_scan.rb] </strong></dt>
+  <dd>
+    <br>
+    NETWORK DISCOVERY<br>
+    This example file will run 255 nmap scan processes, with max processes limit 10, after the limit will be exceeded, engine will
+    activate the queue management where first finished process will yield the spot for next one waiting in the queue.
+    Each process will run callback function.
+    The Callback will run nmap scan on each item, where item is IP address of subnetwork 192.168.1.1-255.
+    after the scan, result will be stored in the text file for future usage.
+
+    <br><br>Example:
+    <pre>
+    #!/usr/bin/env ruby
+    require './ParallelWorker'
+
+    PW = ParallelWorker.new()
+    PW.max_proc = 10
+
+    PW.set_callback(callback: lambda { |ip_address , ext_obj|
+
+    out  = `sudo nmap -O -A --script snmp-interfaces #{ip_address} -oN ./data-files/#{ip_address}.txt`
+
+    })
+    PW.set_data(data: 255.times.map{|i| "192.168.1.#{i}"})
+    PW.run()
+    </pre>
+   </dd>
+      <dt><strong>3 - File: [example_ping_to_class_c.rb] </strong></dt>
+     <dd>
+    <br>
+    DHCP Pulling<br>
+    This example file will run 255 ping checks, with max processes limit 10,
+    The Callback will run ping check on each item, where item is IP address of subnetwork 192.168.1.1-255.
+    The check will return 0 if check was positive or 2 if no answer.
+    This is simple utility to see the DHCP active clients
+
+    <br><br>Example:
+    <pre>
+    require './ParallelWorker'
+
+    PW = ParallelWorker.new()
+    PW.max_proc = 10
+
+    PW.set_callback(callback: lambda { |ip_address , ext_obj|
+
+    out  = system("ping -c 1 -o -t 1 #{ip_address} | 2>&1 >> /dev/null")
+
+    if out == 0 ### $? exit code
+      puts "Host #{ip_address} is alave\n"
+    else
+      puts "Host #{ip_address} is dead\n"
+    end
+  })
+  PW.set_data(data: 255.times.map{|i| "192.168.1.#{i}"})
+  PW.run()
+    </pre>
+   </dd>
+
+<dt><strong>4 - File: [example_remote_ssh_command.rb] </strong></dt>
+     <dd>
+    <br>
+    SSH Remote Command<br>
+    This example file will run on 255 hosts , with max processes limit 10,
+    The Callback will execute remote ssh command and print the output in the console
+
+    <br><br>Example:
+    <pre>
+    #!/usr/bin/env ruby
+    require './ParallelWorker'
+
+    PW = ParallelWorker.new()
+    PW.max_proc = 10
+    PW.debug_mode = true
+    PW.set_callback(callback: lambda { |ip_address , ext_obj|
+      puts "ssh command to  root@#{ip_address}"
+      out  = ` ssh root@#{ip_address} netstat -an | grep -i listen`
+      puts out
+    })
+    PW.set_data(data: 255.times.map{|i| "192.168.1.#{i}"})
+    PW.run()
+    </pre>
+   </dd>
+
+   <dt><strong>5 - File: [example_with_files.rb] </strong></dt>
+     <dd>
+    <br>
+    Extra Object Example<br>
+    This example shows the usage of extra object , where extra object can hold any extra / unique
+    functionality for each process, that gives the ability to provide
+    a different function for each process according to the needs
+
+    <br><br>Example:
+    <pre>
+    #!/usr/bin/env ruby
+    require './ParallelWorker'
+
+    PW = ParallelWorker.new()
+    PW.set_ext_obj(ext_obj: {
+        'function_a' =>  lambda{ puts "hello I am extra function"},
+        'array' => [0,1,2,3,4,5,6,7],
+        'hash' => {  'A' => 1, 'B' => 1, 'C' => 1,  },
+        'value' => 'some value'
+      }
+    )
+  PW.set_callback(callback: lambda { |item , ext_obj|
+      File.open("#{Process.pid}.txt", "w") { |file|
+          file.write("Hello from child process #{Process.pid}\nwait time: #{sleep 5*item}(s)\n #{pp ext_obj} bye bye ...")
+      }
+  })
+  PW.set_data(data: (1..10).to_a)
+  PW.run()
+    </pre>
+   </dd>
+
+
+</dl>
+
+<h3>
+<a id="creating-pages-manually" class="anchor" href="#creating-pages-manually" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>
+Helpers and Monitoring Scripts</h3>
+
+<p>
+
+  There is two shell script provided with the module:
+
+  <ul class="custom-list">
+    <li>
+      <strong>monitor_process.sh: => </strong> to monitor the number of a running processes
+    </li>
+
+    <li>
+      <strong>monitor_zombies.sh: => </strong> to monitor the zombies if some thing goes wrong
+    </li>
+  </ul>
+
+</p>
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>

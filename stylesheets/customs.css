@@ -44,3 +44,18 @@ span.ruby-icon{
   float: none;
   display: inline-block;
 }
+
+
+ul.custom-list{
+  margin: 0px;
+  padding: 0px;
+
+
+}
+
+ul.custom-list li {
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+  padding: 2px 3px;
+}
